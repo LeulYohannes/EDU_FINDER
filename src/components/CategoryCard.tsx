@@ -4,19 +4,20 @@ import { Category } from '../types';
 
 const CategoryCard = ({ category }: { category: Category }) => {
   const Icon = category.icon;
+
   return (
     <Link to={`/category/${category.id}`}>
       <motion.div
-        whileHover={{ scale: 1.05, backgroundColor: 'var(--color-surface-bright)' }}
-        className="bg-surface-container-highest p-8 rounded-2xl ghost-border cursor-pointer text-center group transition-colors h-full"
+        whileHover={{ y: -2 }}
+        className="card card-hover cursor-pointer h-full transition-all"
       >
-        <div className="w-12 h-12 bg-primary-container/20 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-          <Icon className="w-6 h-6 text-primary" />
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-10 h-10 rounded-2xl bg-elevated flex items-center justify-center">
+            <Icon className="w-5 h-5 text-accent" />
+          </div>
+          <h3 className="text-lg font-semibold text-primary mb-0">{category.name}</h3>
         </div>
-        <span className="font-medium text-on-surface block mb-2">{category.name}</span>
-        <p className="text-xs text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity line-clamp-2">
-          {category.description}
-        </p>
+        <p className="text-secondary text-sm leading-relaxed">{category.description}</p>
       </motion.div>
     </Link>
   );
