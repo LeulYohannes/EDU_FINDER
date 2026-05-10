@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
 const AuthPage = () => {
+  console.log('✅ AuthPage component loaded');
+  
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,84 +15,118 @@ const AuthPage = () => {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('🟡 handleAuth called!', { isLogin, email });
+    alert('Form submitted! Check console.');
+    
     setLoading(true);
     setError(null);
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        console.log('🟡 Attempting login...');
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        
+        if (error) {
+          console.error('🔴 Login error:', error);
+          throw error;
+        }
+        
+        console.log('🟢 Login successful!', data);
+        alert('Login successful!');
         navigate('/');
+        
       } else {
-        const { error } = await supabase.auth.signUp({ email, password });
+        console.log('🟡 Attempting signup...');
+        const { data, error } = await supabase.auth.signUp({ 
+          email, 
+          password,
+          options: { emailRedirectTo: window.location.origin }
+        });
+        
         if (error) throw error;
-        navigate('/');
+        
+        console.log('🟢 Signup successful!', data);
+        alert('Check your email for confirmation!');
       }
     } catch (err: any) {
+      console.error('🔴 Auth error:', err);
       setError(err.message);
+      alert('Error: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="pt-48 pb-32 px-8 max-w-md mx-auto min-h-screen"
+      className="pt-48 pb-32 px-4"
     >
-      <div className="bg-surface-container-high rounded-3xl p-8 shadow-xl border border-outline-variant/20 editorial-shadow">
-        <h2 className="text-3xl font-bold mb-6 text-center text-on-surface">
-          {isLogin ? 'Welcome Back' : 'Create Account'}
-        </h2>
+      {/* DEBUG BANNER */}
+      <div className="max-w-md mx-auto mb-4">
+        <div className="bg-red-600 text-white p-3 rounded-lg text-center font-bold">
+          🐛 DEBUG MODE - {new Date().toLocaleTimeString()} - VERCEL DEPLOYMENT
+        </div>
+      </div>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg mb-6 text-sm">
-            {error}
+      <div className="max-w-md mx-auto">
+        <div className="bg-surface-container-high rounded-2xl p-8 shadow-xl border border-outline/20">
+          <h1 className="text-3xl font-bold text-center mb-8">
+            {isLogin ? 'Welcome Back' : 'Create Account'}
+          </h1>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleAuth} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium mb-2">Email</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-surface-container-highest border border-outline/20 focus:outline-none focus:border-primary transition-colors"
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-surface-container-highest border border-outline/20 focus:outline-none focus:border-primary transition-colors"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary/90 transition-all disabled:opacity-50"
+            >
+              {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Sign Up'}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-sm text-primary hover:underline"
+            >
+              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+            </button>
           </div>
-        )}
-
-        <form onSubmit={handleAuth} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1 text-on-surface-variant">Email</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-outline/20 p-3 bg-surface-container-highest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-              placeholder="you@example.com"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1 text-on-surface-variant">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-outline/20 p-3 bg-surface-container-highest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-xl primary-gradient text-on-primary font-bold active:scale-95 transition-all duration-200 mt-4 disabled:opacity-50"
-          >
-            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-primary text-sm hover:underline"
-          >
-            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-          </button>
         </div>
       </div>
     </motion.div>
