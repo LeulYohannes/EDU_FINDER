@@ -42,7 +42,7 @@ const QuestionnairePage = () => {
         .from('user_profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (data) {
         // Map database snake_case back to our frontend camelCase
