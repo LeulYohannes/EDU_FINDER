@@ -44,11 +44,12 @@ const HomePage = () => {
           .from('user_profiles')
           .select('category, skill_level')
           .eq('user_id', user.id)
+          .limit(1)
           .maybeSingle();
 
         if (profileError) {
           console.error('Profile fetch failed', profileError);
-          setError(profileError.message);
+          // User profile lookup should not stop the main course listing from rendering.
         }
 
         if (profile && profile.category) {

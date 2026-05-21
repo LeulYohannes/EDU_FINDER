@@ -26,6 +26,7 @@ const CategoryDetailPage = () => {
         .from('categories')
         .select('*')
         .eq('id', id)
+        .limit(1)
         .maybeSingle();
       
       if (catError) {

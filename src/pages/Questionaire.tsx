@@ -42,7 +42,12 @@ const QuestionnairePage = () => {
         .from('user_profiles')
         .select('*')
         .eq('user_id', user.id)
+        .limit(1)
         .maybeSingle();
+
+      if (error) {
+        console.error('User profile fetch failed', error);
+      }
 
       if (data) {
         // Map database snake_case back to our frontend camelCase
